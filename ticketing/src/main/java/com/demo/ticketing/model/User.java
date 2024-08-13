@@ -1,13 +1,12 @@
 package com.demo.ticketing.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,10 +15,8 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@Table(name = "users")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @ToString(exclude = "tickets")
 public class User extends AbstractEntity<String> implements UserDetails {
 
@@ -32,18 +29,13 @@ public class User extends AbstractEntity<String> implements UserDetails {
     @Min(12)
     private String password;
 
-    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Ticket> tickets;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
     }
 
     @Override
@@ -70,5 +62,4 @@ public class User extends AbstractEntity<String> implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

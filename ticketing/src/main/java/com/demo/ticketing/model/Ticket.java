@@ -1,14 +1,13 @@
 package com.demo.ticketing.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@Table(name = "tickets")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class Ticket  extends AbstractEntity<String>{
 
     @Column(nullable = false)
