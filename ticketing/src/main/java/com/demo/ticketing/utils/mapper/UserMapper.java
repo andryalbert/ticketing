@@ -1,4 +1,4 @@
-package com.demo.ticketing.utils;
+package com.demo.ticketing.utils.mapper;
 
 import com.demo.ticketing.dto.UserDto;
 import com.demo.ticketing.model.User;

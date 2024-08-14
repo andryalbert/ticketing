@@ -15,11 +15,12 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "users")
 @Data
+@Table(name = "users")
 @ToString(exclude = "tickets")
 public class User extends AbstractEntity<String> implements UserDetails {
 
+    @Column(unique = true,nullable = false)
     private String userName;
 
     @Email
@@ -33,9 +34,15 @@ public class User extends AbstractEntity<String> implements UserDetails {
     @JsonIgnore
     private List<Ticket> tickets;
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
     }
 
     @Override
@@ -62,4 +69,5 @@ public class User extends AbstractEntity<String> implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }
