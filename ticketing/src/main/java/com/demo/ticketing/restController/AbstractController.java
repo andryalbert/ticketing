@@ -29,6 +29,7 @@ public abstract class AbstractController {
         log.info("idObject {}",idObject);
         return PisteAuditDto.builder()
                 .pisteAuditId(IdGenerator.uuid())
+                .userConcerned(currentUser().getUsername())
                 .action(action)
                 .lastUpdate(LocalDateTime.now())
                 .dateAction(LocalDate.now())

@@ -25,14 +25,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUserName(username)
+        return userRepository.findByUserNameAndDeleted(username,false)
                 .orElseThrow(()-> new UsernameNotFoundException("votre username n'est pas dans la base de données :"+username));
     }
 
     @Override
     public Optional<User> getUserById(String id) {
         log.info("user id {}",id);
-        return userRepository.findById(id);
+        return userRepository.findByIdAndDeleted(id,false);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return userRepository.findAllByDeleted(false);
     }
 
 

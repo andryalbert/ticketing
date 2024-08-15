@@ -25,6 +25,7 @@ public class PisteAuditMapper {
         pisteAudit.setId(pisteAuditDto.getUserId());
         pisteAudit.setDeleted(false);
         pisteAudit.setAction(pisteAuditDto.getAction());
+        pisteAudit.setUserConcerned(pisteAuditDto.getUserConcerned());
 
         // check if user exist
         Optional<User> userOptional = userService.getUserById(pisteAuditDto.getUserId());
@@ -50,6 +51,7 @@ public class PisteAuditMapper {
         log.info("piste audit {}",pisteAudit);
         return PisteAuditDto.builder()
                 .pisteAuditId(pisteAudit.getId())
+                .userConcerned(pisteAudit.getUserConcerned())
                 .action(pisteAudit.getAction())
                 .lastUpdate(pisteAudit.getLastUpdate())
                 .dateAction(LocalDate.from(pisteAudit.getLastUpdate()))

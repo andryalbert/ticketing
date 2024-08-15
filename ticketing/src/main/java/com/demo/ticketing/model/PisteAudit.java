@@ -13,6 +13,9 @@ public class PisteAudit extends AbstractEntity<String>{
     @Enumerated(EnumType.STRING)
     private Action action;
 
+    @Column(nullable = false)
+    private String userConcerned;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 

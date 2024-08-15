@@ -16,6 +16,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class PisteAuditDto {
     private String pisteAuditId;
+    private String userConcerned;
     private LocalDate dateAction;
     private LocalTime timeAction;
     private LocalDateTime lastUpdate;
