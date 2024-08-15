@@ -2,7 +2,7 @@ package com.demo.ticketing.model;
 
 public enum Action {
     CREATE("créé"),
-    MODIFY("modifié"),
+    UPDATE("modifié"),
     DELETE("supprimé");
 
     private final String action;

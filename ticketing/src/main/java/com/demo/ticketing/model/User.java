@@ -1,5 +1,6 @@
 package com.demo.ticketing.model;
 
+import com.demo.ticketing.utils.annotation.PasswordValidator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -31,8 +32,7 @@ public class User extends AbstractEntity<String> implements UserDetails {
     @NotBlank(message = "l'email ne peut pas être vide")
     private String email;
 
-    @Pattern(regexp = "a-z",message = "le mot de passe doit contenir un caractère majuscule,miniscule,spéciaux et numérique")
-    @Min(value = 8,message = "le mot de passe doit contenir au minimum huit caractère")
+    @PasswordValidator
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
