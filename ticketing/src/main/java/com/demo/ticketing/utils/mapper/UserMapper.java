@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserMapper {
 
-    public User convertUserDtoToUser(UserDto userDto){
-        log.info("user dto {}",userDto);
+    public User convertUserDtoToUser(UserDto userDto) {
+        log.info("user dto {}", userDto);
         User user = new User();
         user.setId(userDto.getUserId());
         user.setDeleted(userDto.isDeleted());
@@ -18,8 +18,8 @@ public class UserMapper {
         return user;
     }
 
-    public UserDto convertUserToUserDto(User user){
-        log.info("user {}",user);
+    public UserDto convertUserToUserDto(User user) {
+        log.info("user {}", user);
         return UserDto.builder()
                 .userId(user.getId())
                 .lastUpdate(user.getLastUpdate())

@@ -4,13 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "tickets")
 @Data
-public class Ticket  extends AbstractEntity<String>{
+public class Ticket extends AbstractEntity<String> {
 
     @NotBlank(message = "le titre ne peut pas être vide")
     private String title;

@@ -23,10 +23,10 @@ public abstract class AbstractController {
         return null;
     }
 
-    protected PisteAuditDto getPisteAuditDto(Action action,Object object,String idObject){
-        log.info("action {}",action);
-        log.info("object {}",object);
-        log.info("idObject {}",idObject);
+    protected PisteAuditDto getPisteAuditDto(Action action, Object object, String idObject) {
+        log.info("action {}", action);
+        log.info("object {}", object);
+        log.info("idObject {}", idObject);
         return PisteAuditDto.builder()
                 .pisteAuditId(IdGenerator.uuid())
                 .userConcerned(currentUser().getUsername())

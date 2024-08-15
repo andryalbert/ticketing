@@ -15,7 +15,7 @@ public class TicketMapper {
 
     private final UserService userService;
 
-    public Ticket convertTicketDtoToTicket(TicketDto ticketDto){
+    public Ticket convertTicketDtoToTicket(TicketDto ticketDto) {
         Ticket ticket = new Ticket();
         ticket.setId(ticketDto.getTicketId());
         ticket.setDeleted(ticketDto.isDeleted());
@@ -25,21 +25,21 @@ public class TicketMapper {
 
         // check if user exist
         Optional<User> userOptional = userService.getUserById(ticketDto.getUserId());
-        log.info("user dans mapper ticket {}",userOptional);
+        log.info("user dans mapper ticket {}", userOptional);
         userOptional.ifPresent(ticket::setUser);
 
-        if(userOptional.isPresent()){
+        if (userOptional.isPresent()) {
             log.info("la convertion du ticket vers dto est effectué");
             return ticket;
-        }else{
-            log.error("le ticket dto est invalide {}",ticketDto);
+        } else {
+            log.error("le ticket dto est invalide {}", ticketDto);
             throw new IllegalArgumentException("le ticket dto est invalide");
         }
 
     }
 
-    public TicketDto convertTicketToTicketDto(Ticket ticket){
-        log.info("ticket {}",ticket);
+    public TicketDto convertTicketToTicketDto(Ticket ticket) {
+        log.info("ticket {}", ticket);
         return TicketDto.builder()
                 .ticketId(ticket.getId())
                 .title(ticket.getTitle())

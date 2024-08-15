@@ -16,7 +16,7 @@ public class PisteAuditServiceImpl implements PisteAuditService {
 
     @Override
     public void savePisteAudit(PisteAudit pisteAudit) {
-        log.info("piste audit {}",pisteAudit);
+        log.info("piste audit {}", pisteAudit);
         pisteAuditRepository.save(pisteAudit);
     }
 

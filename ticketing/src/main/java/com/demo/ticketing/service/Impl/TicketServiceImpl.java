@@ -21,33 +21,35 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Optional<Ticket> getTicketById(String id) {
-        log.info("ticket id {}",id);
-        return ticketRepository.findByIdAndDeleted(id,false);
+        log.info("ticket id {}", id);
+        return ticketRepository.findByIdAndDeleted(id, false);
     }
 
     @Override
     public List<Ticket> getAllTicketsByUser(User user) {
-        log.info("user {}",user);
-        return ticketRepository.findByUserAndDeleted(user,false);
+        log.info("user {}", user);
+        return ticketRepository.findByUserAndDeleted(user, false);
     }
 
     @Override
     public Optional<Ticket> getTicketByUserById(User user, String id) {
-        log.info("user {}",user);
-        log.info("ticket id {}",id);
-        return ticketRepository.findByUserAndIdAndDeleted(user,id,false);
+        log.info("user {}", user);
+        log.info("ticket id {}", id);
+        return ticketRepository.findByUserAndIdAndDeleted(user, id, false);
     }
 
     @Override
     public Ticket saveTicket(Ticket ticket) {
-        ticket.setId(IdGenerator.uuid());
-        log.info("ticket {}",ticket);
+        if (ticket.getId() == null) {
+            ticket.setId(IdGenerator.uuid());
+        }
+        log.info("ticket {}", ticket);
         return ticketRepository.save(ticket);
     }
 
     @Override
     public void deleteTicket(Ticket ticket) {
-        log.info("ticket {}",ticket);
+        log.info("ticket {}", ticket);
         // do a soft delete
         ticket.setDeleted(true);
         ticketRepository.save(ticket);

@@ -20,7 +20,7 @@ public class PisteAuditMapper {
     private final UserService userService;
     private final TicketService ticketService;
 
-    public PisteAudit convertPisteAuditDtoToPisteAudit(PisteAuditDto pisteAuditDto){
+    public PisteAudit convertPisteAuditDtoToPisteAudit(PisteAuditDto pisteAuditDto) {
         PisteAudit pisteAudit = new PisteAudit();
         pisteAudit.setId(pisteAuditDto.getUserId());
         pisteAudit.setDeleted(false);
@@ -29,26 +29,26 @@ public class PisteAuditMapper {
 
         // check if user exist
         Optional<User> userOptional = userService.getUserById(pisteAuditDto.getUserId());
-        log.info("user dans mapper piste audit {}",userOptional);
+        log.info("user dans mapper piste audit {}", userOptional);
         userOptional.ifPresent(pisteAudit::setUser);
 
         // check if ticket exist
         Optional<Ticket> ticketOptional = ticketService.getTicketById(pisteAuditDto.getTicketId());
-        log.info("ticket dans mapper piste audit {}",ticketOptional);
+        log.info("ticket dans mapper piste audit {}", ticketOptional);
         ticketOptional.ifPresent(pisteAudit::setTicket);
 
-        if(userOptional.isPresent() || ticketOptional.isPresent()){
+        if (userOptional.isPresent() || ticketOptional.isPresent()) {
             log.info("la convertion du piste audit vers dto est effectué");
             return pisteAudit;
-        }else{
-            log.error("la piste audit dto est invalide {}",pisteAuditDto);
+        } else {
+            log.error("la piste audit dto est invalide {}", pisteAuditDto);
             throw new IllegalArgumentException("la piste audit dto est invalide");
         }
 
     }
 
-    public PisteAuditDto convertPisteAuditToPisteAuditDto(PisteAudit pisteAudit){
-        log.info("piste audit {}",pisteAudit);
+    public PisteAuditDto convertPisteAuditToPisteAuditDto(PisteAudit pisteAudit) {
+        log.info("piste audit {}", pisteAudit);
         return PisteAuditDto.builder()
                 .pisteAuditId(pisteAudit.getId())
                 .userConcerned(pisteAudit.getUserConcerned())

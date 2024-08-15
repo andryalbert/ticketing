@@ -25,20 +25,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUserNameAndDeleted(username,false)
-                .orElseThrow(()-> new UsernameNotFoundException("votre username n'est pas dans la base de données :"+username));
+        return userRepository.findByUserNameAndDeleted(username, false)
+                .orElseThrow(() -> new UsernameNotFoundException("votre username n'est pas dans la base de données :" + username));
     }
 
     @Override
     public Optional<User> getUserById(String id) {
-        log.info("user id {}",id);
-        return userRepository.findByIdAndDeleted(id,false);
+        log.info("user id {}", id);
+        return userRepository.findByIdAndDeleted(id, false);
     }
 
     @Override
     public User saveUser(@Valid User user) {
-        user.setId(IdGenerator.uuid());
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        if (user.getId() == null) {
+            user.setId(IdGenerator.uuid());
+            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 

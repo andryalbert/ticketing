@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "pisteAudits")
 @Data
-public class PisteAudit extends AbstractEntity<String>{
+public class PisteAudit extends AbstractEntity<String> {
 
     @Enumerated(EnumType.STRING)
     private Action action;

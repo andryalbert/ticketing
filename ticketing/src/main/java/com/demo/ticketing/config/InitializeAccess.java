@@ -15,9 +15,9 @@ public class InitializeAccess {
     private final UserService userService;
 
     @PostConstruct
-    public void initData(){
+    public void initData() {
         List<User> userList = userService.getAllUsers();
-        if(userList.size() == 0) {
+        if (userList.size() == 0) {
             User user = new User();
             user.setUserName("test");
             user.setEmail("test@gmail.com");
