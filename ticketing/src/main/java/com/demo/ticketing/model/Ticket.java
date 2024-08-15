@@ -1,8 +1,10 @@
 package com.demo.ticketing.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -10,10 +12,10 @@ import lombok.EqualsAndHashCode;
 @Data
 public class Ticket  extends AbstractEntity<String>{
 
-    @Column(nullable = false)
+    @NotBlank(message = "le titre ne peut pas être vide")
     private String title;
 
-    @Column(nullable = false)
+    @NotBlank(message = "la description ne peut pas être vide")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

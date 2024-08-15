@@ -4,6 +4,7 @@ import com.demo.ticketing.model.User;
 import com.demo.ticketing.repository.UserRepository;
 import com.demo.ticketing.service.UserService;
 import com.demo.ticketing.utils.IdGenerator;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User saveUser(User user) {
+    public User saveUser(@Valid User user) {
         user.setId(IdGenerator.uuid());
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         return userRepository.save(user);
