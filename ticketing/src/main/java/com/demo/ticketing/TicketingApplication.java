@@ -15,7 +15,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
         servers = {@Server(url = "http://localhost:8080")},
         tags = @Tag(name = "Ticketing",description = "C'est la description de l'API ticketing")
 )
-@SecurityScheme(name = "BasicAuth",type = SecuritySchemeType.DEFAULT , description = "Securité basic avec username et password")
+@SecurityScheme(name = "BasicAuth",type = SecuritySchemeType.HTTP , scheme = "basic", description = "Securité basic avec username et password")
 public class TicketingApplication {
 
     public static void main(String[] args) {
