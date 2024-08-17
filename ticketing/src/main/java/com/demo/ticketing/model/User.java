@@ -19,7 +19,7 @@ import java.util.List;
 @Data
 @Table(name = "users")
 @ToString(exclude = "tickets")
-public class User extends AbstractEntity<String> implements UserDetails {
+public class User extends AbstractEntity implements UserDetails {
 
     @Column(unique = true)
     @NotBlank(message = "username ne peut pas être vide")
@@ -33,7 +33,7 @@ public class User extends AbstractEntity<String> implements UserDetails {
     @PasswordValidator
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Ticket> tickets;
 

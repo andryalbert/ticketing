@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 
 @Data
 @MappedSuperclass
-public abstract class AbstractEntity<T> implements Serializable {
+public abstract class AbstractEntity implements Serializable {
 
     @Id
-    private T id;
+    private String id;
 
     private LocalDateTime lastUpdate = LocalDateTime.now();
 

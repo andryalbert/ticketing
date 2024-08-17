@@ -17,16 +17,14 @@ public class ResponseRestControllerException {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> inputValidationException(ConstraintViolationException exception) {
         Map<String, String> errorMessages = new HashMap<>();
-        exception.getConstraintViolations()
-                .forEach(constraint -> errorMessages.put(
-                        String.valueOf(constraint.getPropertyPath()),
-                        constraint.getMessageTemplate()));
+        exception.getConstraintViolations().forEach(constraint ->
+                    errorMessages.put(String.valueOf(constraint.getPropertyPath()), constraint.getMessageTemplate()));
 
         ErrorResponse response = ErrorResponse.builder()
                 .statusCode(400)
                 .errorType(ErrorType.INPUT_MISMATCH)
                 .details(errorMessages)
-                .suggestion("Assurez vous que les données sont conformes")
+                .suggestion("Assurez vous que les données pour sont conformes")
                 .timestamp(LocalDateTime.now())
                 .build();
 

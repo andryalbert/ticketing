@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "tickets")
 @Data
-public class Ticket extends AbstractEntity<String> {
+public class Ticket extends AbstractEntity {
 
     @NotBlank(message = "le titre ne peut pas être vide")
     private String title;

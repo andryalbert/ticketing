@@ -2,13 +2,12 @@ package com.demo.ticketing.restController;
 
 import com.demo.ticketing.dto.TicketDto;
 import com.demo.ticketing.model.Action;
+import com.demo.ticketing.model.PisteAudit;
 import com.demo.ticketing.model.Ticket;
 import com.demo.ticketing.model.User;
 import com.demo.ticketing.service.PisteAuditService;
 import com.demo.ticketing.service.TicketService;
 import com.demo.ticketing.service.UserService;
-import com.demo.ticketing.utils.mapper.PisteAuditMapper;
-import com.demo.ticketing.utils.mapper.TicketMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -44,7 +43,7 @@ public class TicketController extends AbstractController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = Ticket.class),
+                                    schema = @Schema(implementation = TicketDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -52,9 +51,11 @@ public class TicketController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<List<Ticket>> getAllTickets() {
+    public ResponseEntity<List<TicketDto>> getAllTickets() {
         // get all ticket depending on the user who connect
-        return new ResponseEntity<>(ticketService.getAllTicketsByUser(currentUser()), HttpStatus.OK);
+        User user = getCurrentUserInDatabase(currentUser());
+        List<TicketDto> ticketDtos = ticketService.getAllTicketsByUser(user).stream().map(ticketService::mapToDto).toList();
+        return new ResponseEntity<>(ticketDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -67,7 +68,7 @@ public class TicketController extends AbstractController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = Ticket.class),
+                                    schema = @Schema(implementation = TicketDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -75,9 +76,11 @@ public class TicketController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<Ticket> getTicketById(@PathVariable String id) {
+    public ResponseEntity<TicketDto> getTicketById(@PathVariable String id) {
         // get all ticket depending on the user who connect and the id giving
-        return new ResponseEntity<>(ticketService.getTicketByUserById(currentUser(), id).orElse(new Ticket()), HttpStatus.OK);
+        User user = getCurrentUserInDatabase(currentUser());
+        TicketDto ticketDto = ticketService.mapToDto(ticketService.getTicketByUserById(user, id).orElse(new Ticket()));
+        return new ResponseEntity<>(ticketDto, HttpStatus.OK);
     }
 
     @PostMapping
@@ -93,7 +96,7 @@ public class TicketController extends AbstractController {
                     @ApiResponse(
                             responseCode = "201",
                             content = @Content(
-                                    schema = @Schema(implementation = Ticket.class),
+                                    schema = @Schema(implementation = TicketDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -101,15 +104,17 @@ public class TicketController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<Ticket> createTicket(@RequestBody TicketDto ticketDto) {
+    public ResponseEntity<TicketDto> createTicket(@RequestBody TicketDto ticketDto) {
         // the ticket is linked directly on the user who create
-        ticketDto.setUserId(currentUser().getId());
-        Ticket ticket = ticketService.saveTicket(new TicketMapper(userService).convertTicketDtoToTicket(ticketDto));
+        User user = getCurrentUserInDatabase(currentUser());
+        ticketDto.setUserId(user.getId());
+        Ticket ticket = ticketService.mapToEntity(ticketDto);
+        Ticket ticket1 = ticketService.saveTicket(ticket);
+        TicketDto ticketDto1 = ticketService.mapToDto(ticket1);
         // save Piste audit
-        pisteAuditService.savePisteAudit(
-                new PisteAuditMapper(userService, ticketService)
-                        .convertPisteAuditDtoToPisteAudit(getPisteAuditDto(Action.CREATE, new Ticket(), ticket.getId())));
-        return new ResponseEntity<>(new Ticket(), HttpStatus.CREATED);
+        PisteAudit pisteAudit = getPisteAudit(Action.CREATE, ticket1);
+        pisteAuditService.savePisteAudit(pisteAudit);
+        return new ResponseEntity<>(ticketDto1, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -126,7 +131,7 @@ public class TicketController extends AbstractController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = Ticket.class),
+                                    schema = @Schema(implementation = TicketDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -142,18 +147,18 @@ public class TicketController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<Ticket> updateTicket(@RequestBody TicketDto ticketDto, @PathVariable String id) {
+    public ResponseEntity<TicketDto> updateTicket(@RequestBody TicketDto ticketDto, @PathVariable String id) {
         // check if this ticket is exist for the user
-        Optional<Ticket> ticket = ticketService.getTicketByUserById(currentUser(), id);
+        Optional<Ticket> ticket = ticketService.getTicketByUserById(getCurrentUserInDatabase(currentUser()), id);
         if (ticket.isPresent()) {
             ticketDto.setTicketId(id);
             ticketDto.setUserId(currentUser().getId());
-            Ticket ticket1 = ticketService.saveTicket(new TicketMapper(userService).convertTicketDtoToTicket(ticketDto));
+            Ticket ticket1 = ticketService.saveTicket(ticketService.mapToEntity(ticketDto));
+            TicketDto ticketDto1 = ticketService.mapToDto(ticket1);
             // save Piste audit
-            pisteAuditService.savePisteAudit(
-                    new PisteAuditMapper(userService, ticketService)
-                            .convertPisteAuditDtoToPisteAudit(getPisteAuditDto(Action.UPDATE, new Ticket(), ticket1.getId())));
-            return new ResponseEntity<>(ticket1, HttpStatus.OK);
+            PisteAudit pisteAudit = getPisteAudit(Action.UPDATE, ticket1);
+            pisteAuditService.savePisteAudit(pisteAudit);
+            return new ResponseEntity<>(ticketDto1, HttpStatus.OK);
         } else {
             throw new IllegalArgumentException("l'user ne peut pas modifier un ticket avec id " + id + " qui ne lui appartient pas");
         }
@@ -172,7 +177,7 @@ public class TicketController extends AbstractController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = Ticket.class),
+                                    schema = @Schema(implementation = TicketDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -188,9 +193,9 @@ public class TicketController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<Ticket> assignTicketToUser(@PathVariable String id, @PathVariable String userId) {
+    public ResponseEntity<TicketDto> assignTicketToUser(@PathVariable String id, @PathVariable String userId) {
         // check if this ticket is exist for the user
-        Optional<Ticket> ticketOptional = ticketService.getTicketByUserById(currentUser(), id);
+        Optional<Ticket> ticketOptional = ticketService.getTicketByUserById(getCurrentUserInDatabase(currentUser()), id);
         if (ticketOptional.isPresent()) {
             Ticket ticket = ticketOptional.get();
             // check if the user to affect the task is existed
@@ -198,11 +203,11 @@ public class TicketController extends AbstractController {
             if (user.isPresent()) {
                 ticket.setUser(user.get());
                 Ticket ticket1 = ticketService.saveTicket(ticket);
+                TicketDto ticketDto = ticketService.mapToDto(ticket1);
                 // save Piste audit
-                pisteAuditService.savePisteAudit(
-                        new PisteAuditMapper(userService, ticketService)
-                                .convertPisteAuditDtoToPisteAudit(getPisteAuditDto(Action.ASSIGN, new Ticket(), ticket1.getId())));
-                return new ResponseEntity<>(ticket1, HttpStatus.OK);
+                PisteAudit pisteAudit = getPisteAudit(Action.ASSIGN, ticket1);
+                pisteAuditService.savePisteAudit(pisteAudit);
+                return new ResponseEntity<>(ticketDto, HttpStatus.OK);
             } else {
                 throw new IllegalArgumentException("l'user id: " + userId + " n'existe pas");
             }
@@ -241,18 +246,20 @@ public class TicketController extends AbstractController {
     )
     public ResponseEntity<String> deleteTicket(@PathVariable String id) {
         // check if this ticket is exist for the user
-        Optional<Ticket> ticketOptional = ticketService.getTicketByUserById(currentUser(), id);
+        Optional<Ticket> ticketOptional = ticketService.getTicketByUserById(getCurrentUserInDatabase(currentUser()), id);
         if (ticketOptional.isPresent()) {
             ticketService.deleteTicket(ticketOptional.get());
             // save Piste audit
-            pisteAuditService.savePisteAudit(
-                    new PisteAuditMapper(userService, ticketService)
-                            .convertPisteAuditDtoToPisteAudit(getPisteAuditDto(Action.DELETE, new Ticket(), ticketOptional.get().getId())));
-            return new ResponseEntity<>("le ticket est supprimé", HttpStatus.OK);
+            PisteAudit pisteAudit = getPisteAudit(Action.DELETE, ticketOptional.get());
+            pisteAuditService.savePisteAudit(pisteAudit);
+            return new ResponseEntity<>("le ticket avec id: "+id+" est supprimé", HttpStatus.OK);
         } else {
-            throw new IllegalArgumentException("le ticket id: " + id + " n'existe pas");
+            throw new IllegalArgumentException("le ticket avec id: " + id + " n'existe pas");
         }
     }
 
+    public User getCurrentUserInDatabase(User user){
+        return userService.getUserByUserName(user.getUsername());
+    }
 
 }

@@ -1,14 +1,14 @@
 package com.demo.ticketing.restController;
 
+import com.demo.ticketing.dto.TicketDto;
 import com.demo.ticketing.dto.UserDto;
 import com.demo.ticketing.model.Action;
+import com.demo.ticketing.model.PisteAudit;
 import com.demo.ticketing.model.Ticket;
 import com.demo.ticketing.model.User;
 import com.demo.ticketing.service.PisteAuditService;
 import com.demo.ticketing.service.TicketService;
 import com.demo.ticketing.service.UserService;
-import com.demo.ticketing.utils.mapper.PisteAuditMapper;
-import com.demo.ticketing.utils.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -44,7 +44,7 @@ public class UserController extends AbstractController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = User.class),
+                                    schema = @Schema(implementation = UserDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -52,8 +52,9 @@ public class UserController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<List<User>> getAllUsers() {
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> userDtos = userService.getAllUsers().stream().map(userService::mapToDto).toList();
+        return new ResponseEntity<>(userDtos, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/ticket")
@@ -66,7 +67,7 @@ public class UserController extends AbstractController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = Ticket.class),
+                                    schema = @Schema(implementation = TicketDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -83,16 +84,16 @@ public class UserController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<List<Ticket>> getAllTicketsForUser(@PathVariable String id) {
+    public ResponseEntity<List<TicketDto>> getAllTicketsForUser(@PathVariable String id) {
         // checked if id is valid
         Optional<User> user = userService.getUserById(id);
-        List<Ticket> tickets;
         if (user.isPresent()) {
-            tickets = ticketService.getAllTicketsByUser(user.get());
+            List<Ticket> tickets = ticketService.getAllTicketsByUser(user.get());
+            List<TicketDto> ticketDtos = tickets.stream().map(ticketService::mapToDto).toList();
+            return new ResponseEntity<>(ticketDtos, HttpStatus.OK);
         } else {
             throw new IllegalArgumentException("l'user avec l'id: " + id + " n'existe pas");
         }
-        return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
     @PostMapping
@@ -108,7 +109,7 @@ public class UserController extends AbstractController {
                     @ApiResponse(
                             responseCode = "201",
                             content = @Content(
-                                    schema = @Schema(implementation = User.class),
+                                    schema = @Schema(implementation = UserDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -116,13 +117,13 @@ public class UserController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
-        User user = userService.saveUser(new UserMapper().convertUserDtoToUser(userDto));
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+        User user = userService.saveUser(userService.mapToEntity(userDto));
+        UserDto userDto1 = userService.mapToDto(user);
         // save audit
-        pisteAuditService.savePisteAudit(
-                new PisteAuditMapper(userService, ticketService)
-                        .convertPisteAuditDtoToPisteAudit(getPisteAuditDto(Action.CREATE, new User(), user.getId())));
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+        PisteAudit pisteAudit = getPisteAudit(Action.CREATE, user);
+        pisteAuditService.savePisteAudit(pisteAudit);
+        return new ResponseEntity<>(userDto1, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -139,7 +140,7 @@ public class UserController extends AbstractController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(
-                                    schema = @Schema(implementation = User.class),
+                                    schema = @Schema(implementation = UserDto.class),
                                     mediaType = MediaType.APPLICATION_JSON_VALUE
                             ),
                             description = "Bonne reponse"
@@ -155,17 +156,17 @@ public class UserController extends AbstractController {
             },
             security = {@SecurityRequirement(name = "BasicAuth")}
     )
-    public ResponseEntity<User> updateUser(@RequestBody UserDto userDto, @PathVariable String id) {
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable String id) {
         // checked if id is valid
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
             userDto.setUserId(id);
-            User user1 = userService.saveUser(new UserMapper().convertUserDtoToUser(userDto));
+            User user1 = userService.saveUser(userService.mapToEntity(userDto));
+            UserDto userDto1 = userService.mapToDto(user1);
             // save audit
-            pisteAuditService.savePisteAudit(
-                    new PisteAuditMapper(userService, ticketService)
-                            .convertPisteAuditDtoToPisteAudit(getPisteAuditDto(Action.UPDATE, new User(), user1.getId())));
-            return new ResponseEntity<>(user1, HttpStatus.OK);
+            PisteAudit pisteAudit = getPisteAudit(Action.UPDATE, user1);
+            pisteAuditService.savePisteAudit(pisteAudit);
+            return new ResponseEntity<>(userDto1, HttpStatus.OK);
         } else {
             throw new IllegalArgumentException("l'user avec l'id: " + id + " n'existe pas");
         }
