@@ -79,7 +79,7 @@ public class TicketController extends AbstractController {
     public ResponseEntity<TicketDto> getTicketById(@PathVariable String id) {
         // get all ticket depending on the user who connect and the id giving
         User user = getCurrentUserInDatabase(currentUser());
-        TicketDto ticketDto = ticketService.mapToDto(ticketService.getTicketByUserById(user, id).orElse(new Ticket()));
+        TicketDto ticketDto = ticketService.mapToDto(ticketService.getTicketByUserAndId(user, id).orElse(new Ticket()));
         return new ResponseEntity<>(ticketDto, HttpStatus.OK);
     }
 
@@ -149,7 +149,7 @@ public class TicketController extends AbstractController {
     )
     public ResponseEntity<TicketDto> updateTicket(@RequestBody TicketDto ticketDto, @PathVariable String id) {
         // check if this ticket is exist for the user
-        Optional<Ticket> ticket = ticketService.getTicketByUserById(getCurrentUserInDatabase(currentUser()), id);
+        Optional<Ticket> ticket = ticketService.getTicketByUserAndId(getCurrentUserInDatabase(currentUser()), id);
         if (ticket.isPresent()) {
             ticketDto.setTicketId(id);
             ticketDto.setUserId(currentUser().getId());
@@ -195,7 +195,7 @@ public class TicketController extends AbstractController {
     )
     public ResponseEntity<TicketDto> assignTicketToUser(@PathVariable String id, @PathVariable String userId) {
         // check if this ticket is exist for the user
-        Optional<Ticket> ticketOptional = ticketService.getTicketByUserById(getCurrentUserInDatabase(currentUser()), id);
+        Optional<Ticket> ticketOptional = ticketService.getTicketByUserAndId(getCurrentUserInDatabase(currentUser()), id);
         if (ticketOptional.isPresent()) {
             Ticket ticket = ticketOptional.get();
             // check if the user to affect the task is existed
@@ -246,7 +246,7 @@ public class TicketController extends AbstractController {
     )
     public ResponseEntity<String> deleteTicket(@PathVariable String id) {
         // check if this ticket is exist for the user
-        Optional<Ticket> ticketOptional = ticketService.getTicketByUserById(getCurrentUserInDatabase(currentUser()), id);
+        Optional<Ticket> ticketOptional = ticketService.getTicketByUserAndId(getCurrentUserInDatabase(currentUser()), id);
         if (ticketOptional.isPresent()) {
             ticketService.deleteTicket(ticketOptional.get());
             // save Piste audit

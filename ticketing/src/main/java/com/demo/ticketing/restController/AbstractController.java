@@ -8,6 +8,7 @@ import com.demo.ticketing.utils.IdGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 
@@ -17,8 +18,14 @@ public abstract class AbstractController {
     protected User currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.info("authentication {}", authentication.getPrincipal());
-        if (authentication.getPrincipal() instanceof User)
+        if (authentication.getPrincipal() instanceof User) {
             return (User) authentication.getPrincipal();
+        }else if (authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User user = new User();
+            user.setUserName(userDetails.getUsername());
+            return user;
+        }
         return null;
     }
 

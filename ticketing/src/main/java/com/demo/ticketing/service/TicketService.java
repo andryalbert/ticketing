@@ -14,7 +14,7 @@ public interface TicketService extends MapperService<Ticket, TicketDto> {
 
     List<Ticket> getAllTicketsByUser(User user);
 
-    Optional<Ticket> getTicketByUserById(User user, String id);
+    Optional<Ticket> getTicketByUserAndId(User user, String id);
 
     Ticket saveTicket(Ticket ticket);
 

@@ -41,7 +41,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public Optional<Ticket> getTicketByUserById(User user, String id) {
+    public Optional<Ticket> getTicketByUserAndId(User user, String id) {
         log.info("user {}", user);
         log.info("ticket id {}", id);
         return ticketRepository.findByUserAndIdAndDeleted(user, id, false);
